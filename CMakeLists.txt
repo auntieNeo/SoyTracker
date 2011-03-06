@@ -8,4 +8,4 @@ set (PROJECT_SOURCE_DIR src)
 include_directories("${PROJECT_SOURCE_DIR}/milkyplay")
 add_subdirectory (${PROJECT_SOURCE_DIR}/milkyplay)
 
-include_directories("${PROJECT_SOURCE_DIR}/soytracker")
+add_subdirectory (${PROJECT_SOURCE_DIR}/soytracker)
