@@ -18,22 +18,22 @@
  *   along with SoyTracker.  If not, see <http://www.gnu.org/licenses/>.   *
  ***************************************************************************/
 
-#include "patternEditor.cpp"
+#include "patternEditor.h"
 
 namespace SoyTracker
 {
   PatternEditor::PatternEditor()
   {
-    m_pad = NULL;
+    m_patternPad = NULL;
     m_tracks = new WINDOW*[256];
-    memset(m_tracks, NULL, 256);
+    memset(m_tracks, 0, 256);
 
     m_editorTools = new PatternEditorTools();
   }
 
   PatternEditor::~PatternEditor()
   {
-    delwin(m_pad);
+    delwin(m_patternPad);
     for(int i = 0; i < 256; i++)
     {
       if(m_tracks[i] != NULL)
@@ -44,12 +44,12 @@ namespace SoyTracker
     delete [] m_tracks;
   }
 
-  void setPattern(TXMPattern *pattern)
+  void PatternEditor::setPattern(TXMPattern *pattern)
   {
     m_editorTools->attachPattern(pattern);
   }
 
-  void drawPattern(WINDOW *track, const TXMPattern *pattern)
+  void PatternEditor::drawPattern(WINDOW *track, const TXMPattern *pattern)
   {
   }
 }

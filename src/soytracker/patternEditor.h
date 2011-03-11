@@ -18,8 +18,8 @@
  *   along with SoyTracker.  If not, see <http://www.gnu.org/licenses/>.   *
  ***************************************************************************/
 
-# ifndef PATTERN_EDITOR_H_
-# define PATTERN_EDITOR_H_
+#ifndef PATTERN_EDITOR_H_
+#define PATTERN_EDITOR_H_
 
 #include <curses.h>
 
@@ -31,15 +31,16 @@ namespace SoyTracker
   {
     public:
       PatternEditor();
+      ~PatternEditor();
 
       void setPattern(TXMPattern *pattern);
 
-      WINDOW *patternWindow() { return m_patternWindow; }
+      WINDOW *patternPad() { return m_patternPad; }
 
     private:
       void drawPattern(WINDOW *track, const TXMPattern *pattern);
 
-      WINDOW *m_patternWindow;
+      WINDOW *m_patternPad;
       WINDOW **m_tracks;
 
       PatternEditorTools *m_editorTools;

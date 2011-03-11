@@ -1,2 +1,7 @@
 add_executable(soytracker main.cpp patternEditor.cpp)
-target_link_libraries(soytracker milkyplay)
+
+find_package(Curses REQUIRED)
+include_directories(${CURSES_INCLUDE_DIR})
+set(SOYTRACKER_LIBS ${SOYTRACKER_LIBS} ${CURSES_LIBRARIES})
+
+target_link_libraries(soytracker milkyplay ${SOYTRACKER_LIBS})
