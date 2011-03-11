@@ -1,6 +1,4 @@
 #include "MilkyPlay.h"
-#include "PlayerSTD.h"
-#include "XMFile.h"
 
 int main(int argc, char **argv)
 {
@@ -21,8 +19,6 @@ int main(int argc, char **argv)
   delete player;
   delete module;
   delete mixer;
-
-  
 
   return 0;
 }
