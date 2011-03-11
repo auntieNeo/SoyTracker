@@ -18,20 +18,38 @@
  *   along with SoyTracker.  If not, see <http://www.gnu.org/licenses/>.   *
  ***************************************************************************/
 
-#include "MilkyPlay.h"
-#include "PatternEditorTools.h"
+#include "patternEditor.cpp"
 
-int main(int argc, char **argv)
+namespace SoyTracker
 {
-  if(argc != 2)
-    return 1;
+  PatternEditor::PatternEditor()
+  {
+    m_pad = NULL;
+    m_tracks = new WINDOW*[256];
+    memset(m_tracks, NULL, 256);
 
-  XModule *module = new XModule();
-  module->loadModule(argv[1]);
+    m_editorTools = new PatternEditorTools();
+  }
 
-  PatternEditorTools *tools = new PatternEditorTools(module->phead);
+  PatternEditor::~PatternEditor()
+  {
+    delwin(m_pad);
+    for(int i = 0; i < 256; i++)
+    {
+      if(m_tracks[i] != NULL)
+      {
+        delwin(m_tracks[i]);
+      }
+    }
+    delete [] m_tracks;
+  }
 
-  delete module;
+  void setPattern(TXMPattern *pattern)
+  {
+    m_editorTools->attachPattern(pattern);
+  }
 
-  return 0;
+  void drawPattern(WINDOW *track, const TXMPattern *pattern)
+  {
+  }
 }
