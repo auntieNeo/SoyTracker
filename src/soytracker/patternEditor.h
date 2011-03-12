@@ -35,15 +35,16 @@ namespace SoyTracker
 
       void setPattern(TXMPattern *pattern);
 
-      WINDOW *patternPad() { return m_patternPad; }
+      WINDOW *pad() { return m_pad; }
 
     private:
-      void drawPattern(WINDOW *track, const TXMPattern *pattern);
+      WINDOW *m_pad;
 
-      WINDOW *m_patternPad;
-      WINDOW **m_tracks;
+      TXMPattern *m_pattern;
 
       PatternEditorTools *m_editorTools;
+
+      void drawPattern();
   };
 }
 
