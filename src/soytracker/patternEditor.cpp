@@ -65,40 +65,36 @@ namespace SoyTracker
     cout << "m_pattern->rows: " << m_pattern->rows << endl;
     cout << "m_pattern->patternData: " << m_pattern->patternData << endl;
     */
+    PatternTools tools;
     char *buffer = new char[9];
-    pp_uint32 *dataPos = reinterpret_cast<pp_uint32 *>(m_pattern->patternData);
     for(int i = 0; i < m_pattern->rows; i++)
     {
-      /*
+      tools.setPosition(m_pattern, 0, i);
       // print the note name
-      PatternTools::getNoteName(buffer, *dataPos);
+      PatternTools::getNoteName(buffer, tools.getNote());
       mvwprintw(m_pad, i, 0, "%s", buffer);
 
       // print the instrument number
-      dataPos += 1;
-      if(*dataPos <= 0x0F)
+      pp_int32 instrument = tools.getInstrument();
+      if(instrument <= 0x0F)
       {
-        sprintf(buffer, ".%X", *dataPos);
+        sprintf(buffer, ".%X", instrument);
       }
       else
       {
-        snprintf(buffer, 3, "%X", *dataPos);
+        snprintf(buffer, 3, "%X", instrument);
       }
       mvwprintw(m_pad, i, 3, "%s", buffer);
 
       // print the volume
-      dataPos += 1;
-      PatternTools::getVolumeName(buffer, *dataPos);
+      PatternTools::getVolumeName(buffer, 0);  // FIXME
       mvwprintw(m_pad, i, 5, "%s", buffer);
 
       // print the effect
-      dataPos += 1;
-      PatternTools::getEffectName(buffer, *dataPos);
+      PatternTools::getEffectName(buffer, 0);  // FIXME
       mvwprintw(m_pad, i, 7, "%s", buffer);
 
-      dataPos += 1;
-      */
-
+      /*
       // print the hex values of each column in the pattern
 //      mvwprintw(m_pad, i, 0, "row %d: ", i);
       for(int j = 0; j < 5; j++)
@@ -112,6 +108,7 @@ namespace SoyTracker
         }
         dataPos += 1;
       }
+      */
     }
     delete [] buffer;
   }
