@@ -34,8 +34,8 @@ namespace SoyTracker
 
     m_pattern = NULL;
 
-    m_editorTools = new PatternEditorTools();
-    cout << "size of PatternEditorTools: " << sizeof(PatternEditorTools) << endl;
+    m_editorTools = new PatternEditorTools();  // FIXME: maybe just use this class as a local stack variable, since it's 8 bytes I could get rid of
+//    cout << "size of PatternEditorTools: " << sizeof(PatternEditorTools) << endl;
   }
 
   PatternEditor::~PatternEditor()
@@ -49,19 +49,27 @@ namespace SoyTracker
     m_pattern = pattern;
 
     delwin(m_pad);
-    m_pad = newpad(pattern->rows, 10);
+//    m_pad = newpad(pattern->rows, 10);
+    m_pad = newpad(pattern->rows, 100);
 
     m_editorTools->attachPattern(pattern);
 
     drawPattern();
+
+    wprintw(m_pad, "test");
   }
 
   void PatternEditor::drawPattern()
   {
-    char *buffer = new char[4];
+    /*
+    cout << "m_pattern->rows: " << m_pattern->rows << endl;
+    cout << "m_pattern->patternData: " << m_pattern->patternData << endl;
+    */
+    char *buffer = new char[9];
     pp_uint32 *dataPos = reinterpret_cast<pp_uint32 *>(m_pattern->patternData);
     for(int i = 0; i < m_pattern->rows; i++)
     {
+      /*
       // print the note name
       PatternTools::getNoteName(buffer, *dataPos);
       mvwprintw(m_pad, i, 0, "%s", buffer);
@@ -76,19 +84,34 @@ namespace SoyTracker
       {
         snprintf(buffer, 3, "%X", *dataPos);
       }
-      wprintw(m_pad, "%s", buffer);
+      mvwprintw(m_pad, i, 3, "%s", buffer);
 
       // print the volume
       dataPos += 1;
       PatternTools::getVolumeName(buffer, *dataPos);
-      wprintw(m_pad, "%s", buffer);
+      mvwprintw(m_pad, i, 5, "%s", buffer);
 
       // print the effect
       dataPos += 1;
       PatternTools::getEffectName(buffer, *dataPos);
-      wprintw(m_pad, "%s", buffer);
+      mvwprintw(m_pad, i, 7, "%s", buffer);
 
       dataPos += 1;
+      */
+
+      // print the hex values of each column in the pattern
+//      mvwprintw(m_pad, i, 0, "row %d: ", i);
+      for(int j = 0; j < 5; j++)
+      {
+        snprintf(buffer, 9, "%08X", *dataPos);
+//        wprintw(m_pad, "0x%02X", *dataPos);
+        mvwprintw(m_pad, i, j * 12, "0x%s", buffer);
+        if(j != 5)
+        {
+          mvwprintw(m_pad, i, j * 12 + 10, ", ");
+        }
+        dataPos += 1;
+      }
     }
     delete [] buffer;
   }

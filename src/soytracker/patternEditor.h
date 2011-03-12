@@ -34,6 +34,7 @@ namespace SoyTracker
       ~PatternEditor();
 
       void setPattern(TXMPattern *pattern);
+      TXMPattern *pattern() { return m_pattern; }
 
       WINDOW *pad() { return m_pad; }
 

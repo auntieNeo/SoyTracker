@@ -19,18 +19,48 @@
  ***************************************************************************/
 
 #include "MilkyPlay.h"
-#include "PatternEditorTools.h"
+
+#include "common.h"
+#include "patternEditor.h"
+
+#include <curses.h>
+#include <locale.h>
+#include <unistd.h>
+
+#include <iostream>
+using namespace std;
 
 int main(int argc, char **argv)
 {
   if(argc != 2)
     return 1;
 
+  setlocale(LC_ALL, "");
+
+  // initilize screen and disable input line buffering and echoing
+  initscr(); cbreak(); noecho();
+
+  // some other settings recommended in the ncurses man page
+  nonl();
+  intrflush(stdscr, false);
+  keypad(stdscr, true);
+
+  clear();
+  refresh();
+
   XModule *module = new XModule();
   module->loadModule(argv[1]);
 
-  PatternEditorTools *tools = new PatternEditorTools(module->phead);
+  SoyTracker::PatternEditor *patternEditor = new SoyTracker::PatternEditor();
+  patternEditor->setPattern(module->phead);
 
+  prefresh(patternEditor->pad(), 0, 0, 0, 0, MIN(patternEditor->pattern()->rows, stdscr->_maxy), 100);
+  refresh();
+//  cout << "module->phead->patternData: " << module->phead->patternData << endl;
+
+  sleep(-1);
+
+  delete patternEditor;
   delete module;
 
   return 0;
