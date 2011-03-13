@@ -48,6 +48,8 @@ namespace SoyTracker
   {
     m_pattern = pattern;
 
+    assert(m_pattern->effnum == 2);  // the code assumes two effects, one volume effect and one custom effect
+
     delwin(m_pad);
 //    m_pad = newpad(pattern->rows, 10);
     m_pad = newpad(pattern->rows, 100);
@@ -87,12 +89,21 @@ namespace SoyTracker
       mvwprintw(m_pad, i, 3, "%s", buffer);
 
       // print the volume
-      PatternTools::getVolumeName(buffer, 0);  // FIXME
-      mvwprintw(m_pad, i, 5, "%s", buffer);
+      pp_int32 effect, operand;
+      tools.getFirstEffect(effect, operand);
+//      PatternTools::getVolumeName(buffer, operand);
+      mvwprintw(m_pad, i, 5, "%X", operand);
+
 
       // print the effect
-      PatternTools::getEffectName(buffer, 0);  // FIXME
+      tools.getNextEffect(effect, operand);
+      PatternTools::getEffectName(buffer, effect);
+      // TODO: print operand
       mvwprintw(m_pad, i, 7, "%s", buffer);
+
+      // print debugging things
+      mvwprintw(m_pad, i, 10, "%d", m_pattern->effnum);
+
 
       /*
       // print the hex values of each column in the pattern
