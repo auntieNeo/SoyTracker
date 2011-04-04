@@ -596,7 +596,7 @@ void PatternTools::getNoteName(char* name, pp_uint32 note, bool terminate /* = t
 	
 	if (note == 0)
 	{
-		strcpy(name, "\xf4\xf4\xf4");
+		strcpy(name, "...");
 		return;
 	}
 	else if ( note >= getNoteOffNote())

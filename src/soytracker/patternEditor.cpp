@@ -18,8 +18,9 @@
  *   along with SoyTracker.  If not, see <http://www.gnu.org/licenses/>.   *
  ***************************************************************************/
 
-#include "patternEditor.h"
+#include "common.h"
 #include "patternBuffer.h"
+#include "patternEditor.h"
 
 #include "PatternTools.h"
 #include "XModule.h"
@@ -105,6 +106,7 @@ namespace SoyTracker
               case 1:
                 // print the note name
                 PatternTools::getNoteName(buffer, tools.getNote());
+                wcolor_set(editorPad(), NOTE_COLOR, NULL);
                 mvwprintw(editorPad(), row, pos, "%s", buffer);
                 pos += 3;
               case 2:
@@ -119,6 +121,7 @@ namespace SoyTracker
                   {
                     snprintf(buffer, 3, "%X", instrument);
                   }
+                  wcolor_set(editorPad(), INSTRUMENT_COLOR, NULL);
                   mvwprintw(editorPad(), row, pos, "%s", buffer);
                   pos += 2;
                 }
@@ -127,8 +130,17 @@ namespace SoyTracker
                   // print the volume
                   pp_int32 effect, operand;
                   tools.getFirstEffect(effect, operand);
+                  if(operand <= 0x0F)
+                  {
+                    sprintf(buffer, ".%X", operand);
+                  }
+                  else
+                  {
+                    snprintf(buffer, 3, "%X", operand);
+                  }
                   //      PatternTools::getVolumeName(buffer, operand);
-                  mvwprintw(editorPad(), row, pos, "%X", operand);
+                  wcolor_set(editorPad(), VOLUME_COLOR, NULL);
+                  mvwprintw(editorPad(), row, pos, "%s", buffer);
                   pos += 2;
                 }
               case 4:
@@ -137,6 +149,7 @@ namespace SoyTracker
                   pp_int32 effect, operand;
                   tools.getNextEffect(effect, operand);
                   PatternTools::getEffectName(buffer, effect);
+                  wcolor_set(editorPad(), EFFECT_NAME_COLOR, NULL);
                   mvwprintw(editorPad(), row, pos, "%s", buffer);
                   pos += 1;
                 }
@@ -144,6 +157,9 @@ namespace SoyTracker
               case 6:
                 // print the effect operand
                 // TODO
+
+                // print the margins
+                wcolor_set(editorPad(), CHANNEL_MARGIN_COLOR, NULL);
                 pos += 2;
                 mvwprintw(editorPad(), row, pos, "|");
                 pos += CHANNEL_MARGIN - 1;

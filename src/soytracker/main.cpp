@@ -40,12 +40,21 @@ int main(int argc, char **argv)
   setlocale(LC_ALL, "");
 
   // initilize screen and disable input line buffering and echoing
-  initscr(); cbreak(); noecho();
+  initscr(); start_color(); use_default_colors(); cbreak(); noecho();
 
   // some other settings recommended in the ncurses man page
   nonl();
   intrflush(stdscr, false);
   keypad(stdscr, true);
+
+
+  // initilize the color pairs
+  init_pair(CHANNEL_MARGIN_COLOR, -1, -1);
+  init_pair(NOTE_COLOR, -1, -1);
+  init_pair(INSTRUMENT_COLOR, COLOR_CYAN, -1);
+  init_pair(VOLUME_COLOR, COLOR_GREEN, -1);
+  init_pair(EFFECT_NAME_COLOR, COLOR_MAGENTA, -1);
+  init_pair(EFFECT_OPERAND_COLOR, COLOR_YELLOW, -1);
 
   clear();
   refresh();
