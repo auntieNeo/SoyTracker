@@ -113,7 +113,11 @@ namespace SoyTracker
                 {
                   // print the instrument number
                   pp_int32 instrument = tools.getInstrument();
-                  if(instrument <= 0x0F)
+                  if(instrument == 0x00)
+                  {
+                    sprintf(buffer, "..");
+                  }
+                  else if(instrument <= 0x0F)
                   {
                     sprintf(buffer, ".%X", instrument);
                   }
@@ -130,7 +134,11 @@ namespace SoyTracker
                   // print the volume
                   pp_int32 effect, operand;
                   tools.getFirstEffect(effect, operand);
-                  if(operand <= 0x0F)
+                  if(operand == 0x00)
+                  {
+                    sprintf(buffer, "..");
+                  }
+                  else if(operand <= 0x0F)
                   {
                     sprintf(buffer, ".%X", operand);
                   }
@@ -144,23 +152,36 @@ namespace SoyTracker
                   pos += 2;
                 }
               case 4:
+              case 5:
+              case 6:
                 {
-                // print the effect
+                  // print the effect name
                   pp_int32 effect, operand;
                   tools.getNextEffect(effect, operand);
                   PatternTools::getEffectName(buffer, effect);
+                  if(buffer[0] == '\xfa' || buffer[0] == '0')
+                  {
+                    buffer[0] = '.';
+                  }
                   wcolor_set(editorPad(), EFFECT_NAME_COLOR, NULL);
                   mvwprintw(editorPad(), row, pos, "%s", buffer);
                   pos += 1;
+                  // print the effect operand
+                  wcolor_set(editorPad(), EFFECT_OPERAND_COLOR, NULL);
+                  if(buffer[0] == '.')
+                  {
+                    mvwprintw(editorPad(), row, pos, "..");
+                  }
+                  else
+                  {
+                    snprintf(buffer, 3, "%02X", operand);
+                    mvwprintw(editorPad(), row, pos, "%s", buffer);
+                  }
+                  pos += 2;
                 }
-              case 5:
-              case 6:
-                // print the effect operand
-                // TODO
 
                 // print the margins
                 wcolor_set(editorPad(), CHANNEL_MARGIN_COLOR, NULL);
-                pos += 2;
                 mvwprintw(editorPad(), row, pos, "|");
                 pos += CHANNEL_MARGIN - 1;
                 mvwprintw(editorPad(), row, pos, "|");
