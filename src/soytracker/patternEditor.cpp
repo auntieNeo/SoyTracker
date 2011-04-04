@@ -19,107 +19,175 @@
  ***************************************************************************/
 
 #include "patternEditor.h"
+#include "patternBuffer.h"
 
 #include "PatternTools.h"
 #include "XModule.h"
+
+#define CHANNEL_WIDTH 10
+#define CHANNEL_MARGIN 3
 
 #include <iostream>
 using namespace std;
 
 namespace SoyTracker
 {
+  /**
+   * \class PatternEditor
+   * The PatternEditor provides a curses interface to edit the patterns in a module.
+   *
+   * PatternEditor derives from the TrackerWindow class to provide the interface.
+   */
   PatternEditor::PatternEditor()
   {
-    m_pad = NULL;
+    m_patternBuffer = NULL;
 
-    m_pattern = NULL;
+    m_editorTools = new PatternEditorTools();
+  }
 
-    m_editorTools = new PatternEditorTools();  // FIXME: maybe just use this class as a local stack variable, since it's 8 bytes I could get rid of
-//    cout << "size of PatternEditorTools: " << sizeof(PatternEditorTools) << endl;
+  PatternEditor::PatternEditor(PatternBuffer *patternBuffer)
+  {
+    m_editorTools = new PatternEditorTools();
+    setPatternBuffer(patternBuffer);
   }
 
   PatternEditor::~PatternEditor()
   {
-    delwin(m_pad);
     delete m_editorTools;
   }
 
-  void PatternEditor::setPattern(TXMPattern *pattern)
+  void PatternEditor::setPatternBuffer(PatternBuffer *patternBuffer)
   {
-    m_pattern = pattern;
+    m_patternBuffer = patternBuffer;
 
-    assert(m_pattern->effnum == 2);  // the code assumes two effects, one volume effect and one custom effect
+    TXMPattern *pattern = m_patternBuffer->pattern();
 
-    delwin(m_pad);
-//    m_pad = newpad(pattern->rows, 10);
-    m_pad = newpad(pattern->rows, 100);
+    assert(pattern->effnum == 2);  // the code assumes two effects, one volume effect and one custom effect
+
+    resizeEditorPad(pattern->rows, CHANNEL_WIDTH * pattern->channum + CHANNEL_MARGIN * (pattern->channum - 1));
 
     m_editorTools->attachPattern(pattern);
 
-    drawPattern();
-
-    wprintw(m_pad, "test");
+    struct PatternEditorTools::Position start = {0, 0, 1}, end = {pattern->channum, pattern->rows, 7};
+    drawPattern(start, end);
   }
 
-  void PatternEditor::drawPattern()
+  void PatternEditor::drawPattern(const PatternEditorTools::Position &ss, const PatternEditorTools::Position &se)
   {
-    /*
-    cout << "m_pattern->rows: " << m_pattern->rows << endl;
-    cout << "m_pattern->patternData: " << m_pattern->patternData << endl;
-    */
     PatternTools tools;
+    TXMPattern *pattern = m_patternBuffer->pattern();
     char *buffer = new char[9];
-    for(int i = 0; i < m_pattern->rows; i++)
+    tools.setPosition(pattern, ss.channel, ss.row);
+    for(int row = ss.row; row <= se.row; row++)
     {
-      tools.setPosition(m_pattern, 0, i);
-      // print the note name
-      PatternTools::getNoteName(buffer, tools.getNote());
-      mvwprintw(m_pad, i, 0, "%s", buffer);
-
-      // print the instrument number
-      pp_int32 instrument = tools.getInstrument();
-      if(instrument <= 0x0F)
+      int inner = ss.inner;
+      int pos = CHANNEL_WIDTH * ss.channel + CHANNEL_MARGIN * ss.channel;
+      switch(inner)
       {
-        sprintf(buffer, ".%X", instrument);
+        case 7:
+        case 5:
+        case 6:
+          pos += 1;
+        case 4:
+          pos += 2;
+        case 3:
+          pos += 2;
+        case 2:
+          pos += 3;
       }
-      else
+      for(int chan = ss.channel; chan <= se.channel; chan++)
       {
-        snprintf(buffer, 3, "%X", instrument);
-      }
-      mvwprintw(m_pad, i, 3, "%s", buffer);
+        tools.setPosition(pattern, chan, row);
+          if(chan != se.channel)
+          {
+            switch(inner)  // FIXME: milkytracker has only 6 columns for the inner selection value, but 7 is the highest value allowed for inner... figure out if this value is indexed from 0 or from 1
+            {
+              case 1:
+                // print the note name
+                PatternTools::getNoteName(buffer, tools.getNote());
+                mvwprintw(editorPad(), row, pos, "%s", buffer);
+                pos += 3;
+              case 2:
+                {
+                  // print the instrument number
+                  pp_int32 instrument = tools.getInstrument();
+                  if(instrument <= 0x0F)
+                  {
+                    sprintf(buffer, ".%X", instrument);
+                  }
+                  else
+                  {
+                    snprintf(buffer, 3, "%X", instrument);
+                  }
+                  mvwprintw(editorPad(), row, pos, "%s", buffer);
+                  pos += 2;
+                }
+              case 3:
+                {
+                  // print the volume
+                  pp_int32 effect, operand;
+                  tools.getFirstEffect(effect, operand);
+                  //      PatternTools::getVolumeName(buffer, operand);
+                  mvwprintw(editorPad(), row, pos, "%X", operand);
+                  pos += 2;
+                }
+              case 4:
+                {
+                // print the effect
+                  pp_int32 effect, operand;
+                  tools.getNextEffect(effect, operand);
+                  PatternTools::getEffectName(buffer, effect);
+                  mvwprintw(editorPad(), row, pos, "%s", buffer);
+                  pos += 1;
+                }
+              case 5:
+              case 6:
+                // print the effect operand
+                // TODO
+                pos += 2;
+                mvwprintw(editorPad(), row, pos, "|");
+                pos += CHANNEL_MARGIN - 1;
+                mvwprintw(editorPad(), row, pos, "|");
+                pos += 1;
+            };
+          }
+          else
+          {
+            switch(se.inner)  // FIXME: milkytracker has only 6 columns for the inner selection value, but 7 is the highest value allowed for inner... figure out if this value is indexed from 0 or from 1
+            {
+              case 5:
+              case 6:
+                // print the effect number
+              case 4:
+                // print the effect name
+              case 3:
+                // print the volume
+              case 2:
+                // print the instrument number
+              case 1:
+                // print the note name
+                break;
+            };
+          }
 
-      // print the volume
-      pp_int32 effect, operand;
-      tools.getFirstEffect(effect, operand);
-//      PatternTools::getVolumeName(buffer, operand);
-      mvwprintw(m_pad, i, 5, "%X", operand);
-
-
-      // print the effect
-      tools.getNextEffect(effect, operand);
-      PatternTools::getEffectName(buffer, effect);
-      // TODO: print operand
-      mvwprintw(m_pad, i, 7, "%s", buffer);
-
-      // print debugging things
-      mvwprintw(m_pad, i, 10, "%d", m_pattern->effnum);
-
-
-      /*
-      // print the hex values of each column in the pattern
-//      mvwprintw(m_pad, i, 0, "row %d: ", i);
-      for(int j = 0; j < 5; j++)
-      {
+        /*
+        // print the hex values of each column in the pattern
+        //      mvwprintw(editorPad(), i, 0, "row %d: ", i);
+        for(int j = 0; j < 5; j++)
+        {
         snprintf(buffer, 9, "%08X", *dataPos);
-//        wprintw(m_pad, "0x%02X", *dataPos);
-        mvwprintw(m_pad, i, j * 12, "0x%s", buffer);
+        //        wprintw(editorPad(), "0x%02X", *dataPos);
+        mvwprintw(editorPad(), i, j * 12, "0x%s", buffer);
         if(j != 5)
         {
-          mvwprintw(m_pad, i, j * 12 + 10, ", ");
+        mvwprintw(editorPad(), i, j * 12 + 10, ", ");
         }
         dataPos += 1;
+        }
+         */
+
+        inner = 1;
       }
-      */
     }
     delete [] buffer;
   }

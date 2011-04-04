@@ -18,58 +18,34 @@
  *   along with SoyTracker.  If not, see <http://www.gnu.org/licenses/>.   *
  ***************************************************************************/
 
-#include "MilkyPlay.h"
-
-#include "common.h"
-#include "patternBuffer.h"
-#include "patternEditor.h"
+#ifndef TRACKER_WINDOW_H_
+#define TRACKER_WINDOW_H_
 
 #include <curses.h>
-#include <locale.h>
-#include <unistd.h>
-#include <stdio.h>
+#include <string>
 
-#include <iostream>
-using namespace std;
-
-int main(int argc, char **argv)
+namespace SoyTracker
 {
-  if(argc != 2)
-    return 1;
+  class TrackerWindow
+  {
+    public:
+      TrackerWindow();
+      ~TrackerWindow();
 
-  setlocale(LC_ALL, "");
+      WINDOW *editorPad() { return m_editorPad; }
 
-  // initilize screen and disable input line buffering and echoing
-  initscr(); cbreak(); noecho();
+    protected:
+      void resizeEditorPad(int lines, int columns);
 
-  // some other settings recommended in the ncurses man page
-  nonl();
-  intrflush(stdscr, false);
-  keypad(stdscr, true);
+      std::string windowName();
 
-  clear();
-  refresh();
+      virtual void cursorMoveEvent();
+      virtual void keyPressEvent();
 
-  XModule *module = new XModule();
-  module->loadModule(argv[1]);
-
-  FILE *file = fopen("patternDump", "w");
-  fwrite(module->phead->patternData, sizeof(mp_ubyte), module->phead->patdata, file);
-  fclose(file);
-
-  SoyTracker::PatternBuffer *patternBuffer = new SoyTracker::PatternBuffer(module->phead);
-  SoyTracker::PatternEditor *patternEditor = new SoyTracker::PatternEditor(patternBuffer);
-
-  prefresh(patternEditor->editorPad(), 0, 0, 0, 0, MIN(patternBuffer->pattern()->rows, stdscr->_maxy), 100);
-
-  refresh();
-//  cout << "module->phead->patternData: " << module->phead->patternData << endl;
-
-  sleep(-1);
-
-  delete patternEditor;
-  delete patternBuffer;
-  delete module;
-
-  return 0;
+    private:
+      WINDOW *m_editorPad;
+      int m_lines, m_columns;
+  };
 }
+
+#endif

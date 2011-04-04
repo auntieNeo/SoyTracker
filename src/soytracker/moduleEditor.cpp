@@ -22,6 +22,14 @@
 
 namespace SoyTracker
 {
+  /**
+   * \class ModuleEditor
+   * The ModuleEditor class provides a curses interface for editing modules, the song format used by Milkyplay.
+   *
+   * The most visible part of the ModuleEditor's interface is the pattern editor, which is made up of one or more PatternEditor interfaces. Module editor also provides access to the interfaces for changing samples, instruments, and options related to the current module.
+   * 
+   * SoyTracker uses a buffer system akin to Vim's buffer system, so multiple modules can be edited at the same time, and the same module can be edited by multiple ModuleEditors at the same time. The ModuleBuffer class is used as the backend for this system.
+   */
   ModuleEditor::ModuleEditor()
   {
   }

@@ -5,6 +5,8 @@ set (SoyTracker_VERSION_MINOR 1)
 
 set (PROJECT_SOURCE_DIR src)
 
+set(CMAKE_CXX_FLAGS "-g -Wall")
+
 include_directories("${PROJECT_SOURCE_DIR}/milkyplay")
 add_subdirectory (${PROJECT_SOURCE_DIR}/milkyplay)
 

@@ -21,31 +21,31 @@
 #ifndef PATTERN_EDITOR_H_
 #define PATTERN_EDITOR_H_
 
-#include <curses.h>
-
 #include "PatternEditorTools.h"
+#include "trackerWindow.h"
 
 namespace SoyTracker
 {
-  class PatternEditor
+  class PatternBuffer;
+
+  class PatternEditor : public TrackerWindow
   {
     public:
       PatternEditor();
+      PatternEditor(PatternBuffer *patternBuffer);
       ~PatternEditor();
 
-      void setPattern(TXMPattern *pattern);
-      TXMPattern *pattern() { return m_pattern; }
-
-      WINDOW *pad() { return m_pad; }
+      void setPatternBuffer(PatternBuffer *patternBuffer);
+      PatternBuffer *patternBuffer() { return m_patternBuffer; }
 
     private:
-      WINDOW *m_pad;
-
-      TXMPattern *m_pattern;
+      PatternBuffer *m_patternBuffer;
 
       PatternEditorTools *m_editorTools;
 
-      void drawPattern();
+      int m_patternWidth, m_patternHeight;
+
+      void drawPattern(const PatternEditorTools::Position &ss, const PatternEditorTools::Position &se);
   };
 }
 
