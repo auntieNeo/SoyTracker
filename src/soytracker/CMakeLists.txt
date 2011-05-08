@@ -1,4 +1,4 @@
-add_executable(soytracker main.cpp moduleEditor.cpp patternBuffer.cpp patternEditor.cpp trackerWindow.cpp)
+add_executable(soytracker main.cpp moduleEditor.cpp patternBuffer.cpp patternEditor.cpp trackerWindow.cpp windowManager.cpp)
 
 find_package(Curses REQUIRED)
 include_directories(${CURSES_INCLUDE_DIR})

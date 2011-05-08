@@ -23,6 +23,7 @@
 #include "common.h"
 #include "patternBuffer.h"
 #include "patternEditor.h"
+#include "windowManager.h"
 
 #include <curses.h>
 #include <locale.h>
@@ -31,6 +32,8 @@
 
 #include <iostream>
 using namespace std;
+
+using namespace SoyTracker;
 
 int main(int argc, char **argv)
 {
@@ -46,6 +49,7 @@ int main(int argc, char **argv)
   nonl();
   intrflush(stdscr, false);
   keypad(stdscr, true);
+  nodelay(stdscr, true);
 
 
   // initilize the color pairs
@@ -59,6 +63,7 @@ int main(int argc, char **argv)
   clear();
   refresh();
 
+  // load the module
   XModule *module = new XModule();
   module->loadModule(argv[1]);
 
@@ -68,13 +73,16 @@ int main(int argc, char **argv)
 
   SoyTracker::PatternBuffer *patternBuffer = new SoyTracker::PatternBuffer(module->phead);
   SoyTracker::PatternEditor *patternEditor = new SoyTracker::PatternEditor(patternBuffer);
+  WindowManager *windowManager = new WindowManager();
+  windowManager->addWindow(patternEditor);
 
-  prefresh(patternEditor->editorPad(), 0, 0, 0, 0, MIN(patternBuffer->pattern()->rows, stdscr->_maxy), 100);
-
-  refresh();
-//  cout << "module->phead->patternData: " << module->phead->patternData << endl;
-
-  sleep(-1);
+  while(true)
+  {
+    timeout(-1);
+    int ch;
+    while((ch = getch()) != ERR)
+      windowManager->chEvent(ch);
+  }
 
   delete patternEditor;
   delete patternBuffer;

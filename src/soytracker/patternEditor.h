@@ -38,6 +38,9 @@ namespace SoyTracker
       void setPatternBuffer(PatternBuffer *patternBuffer);
       PatternBuffer *patternBuffer() { return m_patternBuffer; }
 
+    protected:
+      void resizeEvent(int newLines, int newColumns);
+
     private:
       PatternBuffer *m_patternBuffer;
 
@@ -45,6 +48,7 @@ namespace SoyTracker
 
       int m_patternWidth, m_patternHeight;
 
+      void drawPattern(int minrow, int mincol, int maxrow, int maxcol);
       void drawPattern(const PatternEditorTools::Position &ss, const PatternEditorTools::Position &se);
   };
 }

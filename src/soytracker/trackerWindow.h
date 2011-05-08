@@ -26,13 +26,26 @@
 
 namespace SoyTracker
 {
+  class WindowManager;
+
   class TrackerWindow
   {
+    friend class WindowManager;
     public:
       TrackerWindow();
       ~TrackerWindow();
 
       WINDOW *editorPad() { return m_editorPad; }
+      WindowManager *windowManager() { return m_windowManager; }
+
+      int lines() { return m_lines; }
+      int columns() { return m_columns; }
+
+      int lineOffset() { return m_lineOffset; }
+      int columnOffset() { return m_columnOffset; }
+
+      bool isVisible() { return m_visible; }
+      void setVisible(bool visible) { m_visible = visible; }
 
     protected:
       void resizeEditorPad(int lines, int columns);
@@ -42,9 +55,17 @@ namespace SoyTracker
       virtual void cursorMoveEvent();
       virtual void keyPressEvent();
 
+      virtual void resizeEvent(int newLines, int newColumns);
+      void drawWindow(int minrow, int mincol, int maxrow, int maxcol);
+
     private:
       WINDOW *m_editorPad;
       int m_lines, m_columns;
+      int m_lineOffset, m_columnOffset;
+      bool m_visible;
+      WindowManager *m_windowManager;
+
+      void setWindowManager(WindowManager *windowManager) { m_windowManager = windowManager; }
   };
 }
 

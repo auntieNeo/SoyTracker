@@ -73,6 +73,71 @@ namespace SoyTracker
     drawPattern(start, end);
   }
 
+  void PatternEditor::resizeEvent(int newLines, int newColumns)
+  {
+    TrackerWindow::resizeEvent(newLines, newColumns);
+  }
+
+  void PatternEditor::drawPattern(int minrow, int mincol, int maxrow, int maxcol)
+  {
+    int mininner;
+    switch(mincol % (CHANNEL_WIDTH + CHANNEL_MARGIN))
+    {
+      case 0:
+      case 1:
+      case 2:
+        mininner = NOTE;
+        break;
+      case 3:
+      case 4:
+        mininner = INSTRUMENT;
+        break;
+      case 5:
+      case 6:
+        mininner = VOLUME;
+        break;
+      case 7:
+        mininner = EFFECT_NAME;
+        break;
+      case 8:
+        mininner = EFFECT_OPERAND_HIGH;
+        break;
+      case 9:
+        mininner = EFFECT_OPERAND_LOW;
+        break;
+    }
+    int maxinner;
+    switch(maxcol % (CHANNEL_WIDTH + CHANNEL_MARGIN))
+    {
+      case 0:
+      case 1:
+      case 2:
+        maxinner = NOTE;
+        break;
+      case 3:
+      case 4:
+        maxinner = INSTRUMENT;
+        break;
+      case 5:
+      case 6:
+        maxinner = VOLUME;
+        break;
+      case 7:
+        maxinner = EFFECT_NAME;
+        break;
+      case 8:
+        maxinner = EFFECT_OPERAND_HIGH;
+        break;
+      case 9:
+        maxinner = EFFECT_OPERAND_LOW;
+        break;
+      default:
+        maxinner = EFFECT_OPERAND_LOW;
+    }
+    struct PatternEditorTools::Position start = {mincol / (CHANNEL_WIDTH + CHANNEL_MARGIN), minrow, mininner}, end = {maxcol / (CHANNEL_WIDTH + CHANNEL_MARGIN), maxrow, maxinner};
+    drawPattern(start, end);
+  }
+
   void PatternEditor::drawPattern(const PatternEditorTools::Position &ss, const PatternEditorTools::Position &se)
   {
     PatternTools tools;
@@ -103,13 +168,13 @@ namespace SoyTracker
           {
             switch(inner)  // FIXME: milkytracker has only 6 columns for the inner selection value, but 7 is the highest value allowed for inner... figure out if this value is indexed from 0 or from 1
             {
-              case 1:
+              case NOTE:
                 // print the note name
                 PatternTools::getNoteName(buffer, tools.getNote());
                 wcolor_set(editorPad(), NOTE_COLOR, NULL);
                 mvwprintw(editorPad(), row, pos, "%s", buffer);
                 pos += 3;
-              case 2:
+              case INSTRUMENT:
                 {
                   // print the instrument number
                   pp_int32 instrument = tools.getInstrument();
@@ -129,7 +194,7 @@ namespace SoyTracker
                   mvwprintw(editorPad(), row, pos, "%s", buffer);
                   pos += 2;
                 }
-              case 3:
+              case VOLUME:
                 {
                   // print the volume
                   pp_int32 effect, operand;
@@ -151,9 +216,9 @@ namespace SoyTracker
                   mvwprintw(editorPad(), row, pos, "%s", buffer);
                   pos += 2;
                 }
-              case 4:
-              case 5:
-              case 6:
+              case EFFECT_NAME:
+              case EFFECT_OPERAND_HIGH:
+              case EFFECT_OPERAND_LOW:
                 {
                   // print the effect name
                   pp_int32 effect, operand;
