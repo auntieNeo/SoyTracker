@@ -17,8 +17,11 @@ namespace SoyTracker
 
       void chEvent(int ch);
 
+      void drawWindows();
+
     private:
       std::vector<TrackerWindow *> m_windows;
+      TrackerWindow *m_currentWindow;
   };
 }
 

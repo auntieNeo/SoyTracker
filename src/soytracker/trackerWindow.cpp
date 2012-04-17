@@ -51,11 +51,11 @@ namespace SoyTracker
     {
       if(newLines > lines())
       {
-        drawWindow(lines(), 0, newLines, columns());
+        drawWindow(lines(), 0, newLines - 1, columns() - 1);
       }
       if(newColumns > columns())
       {
-        drawWindow(0, columns(), newLines, newColumns);
+        drawWindow(0, columns(), newLines - 1, newColumns - 1);
       }
     }
     m_lines = newLines;

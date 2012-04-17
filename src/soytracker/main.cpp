@@ -75,13 +75,17 @@ int main(int argc, char **argv)
   SoyTracker::PatternEditor *patternEditor = new SoyTracker::PatternEditor(patternBuffer);
   WindowManager *windowManager = new WindowManager();
   windowManager->addWindow(patternEditor);
+  refresh();
 
   while(true)
   {
     timeout(-1);
     int ch;
     while((ch = getch()) != ERR)
+    {
       windowManager->chEvent(ch);
+      refresh();
+    }
   }
 
   delete patternEditor;

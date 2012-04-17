@@ -10,6 +10,7 @@ namespace SoyTracker
 {
   WindowManager::WindowManager()
   {
+    m_currentWindow = NULL;
   }
 
   WindowManager::~WindowManager()
@@ -21,6 +22,11 @@ namespace SoyTracker
     window->setWindowManager(this);
     window->setVisible(true);
     m_windows.push_back(window);
+    if(m_currentWindow == NULL)
+    {
+      m_currentWindow = window;
+      drawWindows();
+    }
   }
 
   void WindowManager::chEvent(int ch)
@@ -33,5 +39,10 @@ namespace SoyTracker
         m_windows[i]->resizeEvent(LINES, COLS);
       }
     }
+  }
+
+  void WindowManager::drawWindows()
+  {
+    m_currentWindow->drawWindow(0, 0, LINES - 1, COLS - 1);
   }
 }
