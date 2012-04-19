@@ -21,9 +21,6 @@
 #include "MilkyPlay.h"
 
 #include "common.h"
-#include "patternBuffer.h"
-#include "patternEditor.h"
-#include "windowManager.h"
 
 #include <curses.h>
 #include <locale.h>
@@ -43,14 +40,14 @@ int main(int argc, char **argv)
   setlocale(LC_ALL, "");
 
   // initilize screen and disable input line buffering and echoing
-  initscr(); start_color(); use_default_colors(); cbreak(); noecho();
+  // TODO: replace cbreak with raw in the future and catch control characters properly
+  initscr(); start_color(); use_default_colors(); cbreak(); noecho(); keypad(stdscr, TRUE);
 
   // some other settings recommended in the ncurses man page
   nonl();
   intrflush(stdscr, false);
   keypad(stdscr, true);
   nodelay(stdscr, true);
-
 
   // initilize the color pairs
   init_pair(CHANNEL_MARGIN_COLOR, -1, -1);
@@ -63,34 +60,8 @@ int main(int argc, char **argv)
   clear();
   refresh();
 
-  // load the module
-  XModule *module = new XModule();
-  module->loadModule(argv[1]);
-
-  FILE *file = fopen("patternDump", "w");
-  fwrite(module->phead->patternData, sizeof(mp_ubyte), module->phead->patdata, file);
-  fclose(file);
-
-  SoyTracker::PatternBuffer *patternBuffer = new SoyTracker::PatternBuffer(module->phead);
-  SoyTracker::PatternEditor *patternEditor = new SoyTracker::PatternEditor(patternBuffer);
-  WindowManager *windowManager = new WindowManager();
-  windowManager->addWindow(patternEditor);
-  refresh();
-
-  while(true)
-  {
-    timeout(-1);
-    int ch;
-    while((ch = getch()) != ERR)
-    {
-      windowManager->chEvent(ch);
-      refresh();
-    }
-  }
-
-  delete patternEditor;
-  delete patternBuffer;
-  delete module;
+  // end curses mode
+  endwin();
 
   return 0;
 }
