@@ -20,34 +20,52 @@
  * DEALINGS IN THE SOFTWARE.                                                   *
  ******************************************************************************/
 
-#ifndef KEYSPACE_POOL_FACTORY_H_
-#define KEYSPACE_POOL_FACTORY_H_
+#include "tripcodeCrawler.h"
 
 namespace TripRipper
 {
-  class KeyspacePool;
+  TripcodeCrawler::TripcodeCrawler(TripcodeAlgorithm *tripcode, MatchingAlgorithm *matching, KeyspacePool *(*keyspaceCallback)()) :
+    m_tripcodeAlgorithm(tripcode),
+    m_matchingAlgorithm(matching),
+    m_keyspaceCallback(keyspaceCallback),
+    m_currentPool(NULL)
+  {
+
+  }
 
   /**
-   * The KeyspacePoolFactory is responsible for constructing KeyspacePool
-   * objects from a serial representation of the object. This is important for
-   * allowing the root MPI rank to communicate keyspace pools to the
-   * TripcodeCrawler object for each rank. Because there can be many different
-   * types of keyspace mappings, the particular type of KeyspacePool needs to
-   * be communicated in the serial representation. This is an implementation
-   * detail shared by both the KeyspacePoolFactory class and the classes that
-   * implement KeyspacePool.
+   * This method contains most of the MPI code that coordinates the efforts
+   * among the crawlers. This method doesn't return until the root MPI process
+   * recieves a SIGTERM signal.
+   *
+   * One of the crawlers is designated the root crawler based on its MPI rank.
+   * The root crawler instantiates a KeyspaceMapping object to coordinate the
+   * keyspace mapping among the crawlers.
+   *
+   * When the root crawler recieves a SIGTERM signal, it signals all of the
+   * crawlers to finish their current pools and optionally serialize the
+   * KeyspaceMapping object to disk to allow for the search to be resumed in the
+   * future.
    */
-  class KeyspacePoolFactory
+  void TripcodeCrawler::run()
   {
-    private:
-      KeyspacePoolFactory();
-      ~KeyspacePoolFactory();
+    int worldRank, worldSize;
+    MPI_Comm_rank(MPI_COMM_WORLD, &worldRank);
+    MPI_Comm_size(MPI_COMM_WORLD, &worldSize);
 
-    public:
-      static KeyspacePoolFactory *singleton();
+    if(worldRank == 0)
+    {
+    }
+    else
+    {
+    }
+  }
 
-      KeyspacePool *createKeyspacePool(const unsigned char *data, size_t size);
+  /**
+   * This method coordinates the three classes KeyspacePool, TripcodeAlgorithm,
+   * and MatchingAlgorithm to perform the actual tripcode search.
+   */
+  void TripcodeCrawler::doSearch()
+  {
   }
 }
-
-#endif
