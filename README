@@ -1,0 +1,3 @@
+TripRipper is a tripcode searching program that can be executed on computation
+clusters using the MPI interface. It runs equally well on personal computers
+with freely available MPI implementations such as OpenMPI.
