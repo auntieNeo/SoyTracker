@@ -28,6 +28,7 @@
 /**
  * \page tripcode_algorithm Tripcode Algorithm Description
  *
+ * \section tripcode_overview Algorithm Overview
  * There are various different implementations of the tripcode algorithm,
  * depending on the version of the image board software used or the particular
  * image board site. Most popular sites include a seperate, secure tripcode
@@ -63,6 +64,8 @@
  * different architectures. There are Intel AVX implementations floating around
  * as well. GPU processing is probably the most efficient method for consumer
  * hardware.
+ *
+ * \section tripcode_packed Packed Tripcode Format
  */
 
 namespace TripRipper
@@ -73,8 +76,25 @@ namespace TripRipper
       TripcodeAlgorithm();
       virtual ~TripcodeAlgorithm();
 
+      /**
+       * \property TripcodeAlgorithm::outputAlignment
+       * The outputAlignment property specifies how the output from a
+       * TripcodeAlgorithm object is to be aligned. Implementing classes must
+       * place the first byte of the output at an address evenly divisable by
+       * the outputAlignment. Additionally, the last byte of the output must be
+       * at an address directly before an address evenly divisable by the
+       * outputAlignment. If the output must be padded to fulfill this last
+       * requirement, implementors can simply duplicate any of the results in
+       * the output, to avoid returning erroneous results.
+       */
       void setOutputAlignment(size_t alignment) { m_outputAlignment = alignment; }
       size_t outputAlignment() const { return m_outputAlignment; }
+
+      /**
+       * \property TripcodeAlgorithm::outputStride
+       * The outputStride property specifies the number of bytes that occur
+       * between 
+       */
       void setOutputStride(size_t stride) { m_outputStride = stride; }
       size_t outputStride() const { return m_outputStride; }
 

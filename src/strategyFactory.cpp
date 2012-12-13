@@ -34,7 +34,7 @@ namespace TripRipper
 
   TripcodeAlgorithm *createOpenSSLTripcode()
   {
-    return new openSSLTripcode;
+    return new OpenSSLTripcode;
   }
 
   MatchingAlgorithm *createStrcmpMatching()

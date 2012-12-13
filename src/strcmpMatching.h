@@ -23,6 +23,8 @@
 #ifndef STRCMP_MATCHING_H_
 #define STRCMP_MATCHING_H_
 
+#include "matchingAlgorithm.h"
+
 namespace TripRipper
 {
   class StrcmpMatching : public MatchingAlgorithm

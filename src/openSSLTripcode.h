@@ -23,6 +23,8 @@
 #ifndef OPENSSL_TRIPCODE_H_
 #define OPENSSL_TRIPCODE_H_
 
+#include "tripcodeAlgorithm.h"
+
 namespace TripRipper
 {
   class OpenSSLTripcode : public TripcodeAlgorithm
