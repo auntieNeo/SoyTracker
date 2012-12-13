@@ -25,29 +25,24 @@
 
 namespace TripRipper
 {
+  class KeyspaceMapping;
+  class TripcodeAlgorithm;
+  class MatchingAlgorithm;
+  class KeyspacePool;
+
   class TripcodeCrawler
   {
     public:
-      TripcodeCrawler(TripcodeAlgorithm *tripcode, MatchingAlgorithm *matching, KeyspacePool* (*keyspaceCallback)());
+      TripcodeCrawler(const std::string &keyspaceStrategy, const std::string &tripcodeStrategy, const std::string &matchingStrategy);
       ~TripcodeCrawler();
 
       void run();
       void doSearch();
 
-      void setKeyspaceMapping();
-      KeyspaceMapping *keyspaceMapping() { return m_keyspaceMapping; }
-
-      void setTripcodeAlgorithm();
-      TripcodeAlgorithm *tripcodeAlgorithm() { return m_tripcodeAlgorithm; }
-
-      void setMatchingAlgorithm();
-      MatchingAlgorithm *matchingAlgorithm() { return m_matchingAlgorithm; }
-
     private:
+      KeyspaceMapping *m_keyspaceMapping;
       TripcodeAlgorithm *m_tripcodeAlgorithm;
       MatchingAlgorithm *m_matchingAlgorithm;
-
-      KeyspacePool* (*m_keyspaceCallback)();
       KeyspacePool *m_currentPool;
   };
 }

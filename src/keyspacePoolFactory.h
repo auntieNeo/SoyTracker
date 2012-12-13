@@ -46,7 +46,7 @@ namespace TripRipper
     public:
       static KeyspacePoolFactory *singleton();
 
-      KeyspacePool *createKeyspacePool(const unsigned char *data, size_t size);
+      KeyspacePool *createKeyspacePool(const uint8_t *data, size_t size);
   }
 }
 

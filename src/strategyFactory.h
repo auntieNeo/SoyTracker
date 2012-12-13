@@ -23,6 +23,8 @@
 #ifndef STRATEGY_FACTORY_H_
 #define STRATEGY_FACTORY_H_
 
+#include <string>
+
 namespace TripRipper
 {
   /**
@@ -41,7 +43,9 @@ namespace TripRipper
     public:
       static StrategyFactory *singleton();
 
-      KeyspaceMapping *createKeyspaceMapping(const string &type);
+      KeyspaceMapping *createKeyspaceMapping(const std::string &type);
+      TripcodeAlgorithm *createTripcodeAlgorithm(const std::string &type);
+      MatchingAlgorithm *createMatchingAlgorithm(const std::string &type);
   };
 }
 

@@ -20,40 +20,21 @@
  * DEALINGS IN THE SOFTWARE.                                                   *
  ******************************************************************************/
 
-#include "keyspacePoolFactory.h"
-#include "keyspaceMapping.h"
-
-#include <arpa/inet.h>
+#ifndef COMMON_H_
+#define COMMON_H_
 
 namespace TripRipper
 {
-  KeyspacePoolFactory::KeyspacePoolFactory()
-  {
-  }
+  enum MessageTag {
+    KEYSPACE_REQUEST = 1,
+    KEYSPACE_RESPONSE,
+    POOL_EXHAUSTED_RESULT,
+    TERMINATION_REQUEST
+  };
 
-  KeyspacePoolFactory::~KeyspacePoolFactory()
-  {
-  }
+  const int ROOT_RANK = 0;
 
-  KeyspacePool *KeyspacePoolFactory::singleton()
-  {
-    static KeyspacePool instance;
-    return &instance;
-  }
-
-  KeyspacePool *createKeyspacePool(const unsigned char *data, size_t size)
-  {
-    uint32_t type = ntohl(static_cast<uint32_t*>(data));
-    size_t dataIndex = sizeof(uint32_t);
-    switch(static_cast<KeyspaceMapping::Type>(type))
-    {
-      case Linear:
-        {
-          LinearKeyspace();
-        }
-        break;
-      default:
-        exit(EXIT_FAILURE);
-    }
-  }
+  typedef pool_id uint64_t;
 }
+
+#endif

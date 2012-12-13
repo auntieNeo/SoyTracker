@@ -24,5 +24,20 @@
 
 namespace TripRipper
 {
-  KeyspaceMapping::KeyspaceMapping();
+  KeyspaceMapping::KeyspaceMapping()
+  {
+  }
+
+  KeyspaceMapping::~KeyspaceMapping()
+  {
+  }
+
+  KeyspacePool::KeyspacePool(uint64_t identifier) :
+    m_identifier(identifier)
+  {
+  }
+
+  KeyspacePool::~KeyspacePool()
+  {
+  }
 }

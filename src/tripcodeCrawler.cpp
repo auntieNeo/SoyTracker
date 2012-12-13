@@ -21,16 +21,37 @@
  ******************************************************************************/
 
 #include "tripcodeCrawler.h"
+#include "common.h"
 
 namespace TripRipper
 {
-  TripcodeCrawler::TripcodeCrawler(TripcodeAlgorithm *tripcode, MatchingAlgorithm *matching, KeyspacePool *(*keyspaceCallback)()) :
-    m_tripcodeAlgorithm(tripcode),
-    m_matchingAlgorithm(matching),
-    m_keyspaceCallback(keyspaceCallback),
+  /**
+   * The TripcodeCrawler constructor takes as its arguments a number of strings
+   * that identify the strategies to be used when searching for tripcodes. These
+   * are the same strings that are used for the command line arguments.
+   */
+  TripcodeCrawler::TripcodeCrawler(const std::string &keyspaceStrategy, const std::string &tripcodeStrategy, const std::string &matchingStrategy) :
+    m_keyspaceMapping(NULL),
+    m_tripcodeAlgorithm(NULL),
+    m_matchingAlgorithm(NULL),
     m_currentPool(NULL)
-  {
+ {
+    int worldRank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &worldRank);
+    if(worldRank == ROOT_RANK)
+    {
+      m_keyspaceMapping = StrategyFactory::singleton()->createKeyspaceMapping(keyspaceStrategy);
+    }
+    m_tripcodeAlgorithm = StrategyFactory::singleton()->createTripcodeAlgorithm(tripcodeStrategy);
+    m_matchingAlgorithm = StrategyFactory::singleton()->createMatchingAlgorithm(matchingStrategy);
+  }
 
+  TripcodeCrawler::~TripcodeCrawler()
+  {
+    delete m_matchingAlgorithm;
+    delete m_tripcodeAlgorithm;
+    delete m_keyspaceMapping;
+    delete m_currentPool;
   }
 
   /**
@@ -40,12 +61,17 @@ namespace TripRipper
    *
    * One of the crawlers is designated the root crawler based on its MPI rank.
    * The root crawler instantiates a KeyspaceMapping object to coordinate the
-   * keyspace mapping among the crawlers.
+   * keyspace mapping among the crawlers. In reality the root crawler forks its
+   * tripcode generating thread and continues to listen for KeyspacePool
+   * requests in the main thread.
    *
    * When the root crawler recieves a SIGTERM signal, it signals all of the
    * crawlers to finish their current pools and optionally serialize the
    * KeyspaceMapping object to disk to allow for the search to be resumed in the
    * future.
+   *
+   * \fixme Catching the SIGTERM signal in a thread that makes MPI calls might
+   * not be safe. See section 2.9.2 of the MPI specification.
    */
   void TripcodeCrawler::run()
   {
@@ -53,11 +79,53 @@ namespace TripRipper
     MPI_Comm_rank(MPI_COMM_WORLD, &worldRank);
     MPI_Comm_size(MPI_COMM_WORLD, &worldSize);
 
-    if(worldRank == 0)
+    if(worldRank == ROOT_RANK)
     {
+      /// \todo Spawn a thread so the root process can compute tripcodes and
+      /// coordinate the threads at the same time.
+
+      while(true)
+      {
+        int message;
+        MPI_Status status;
+
+        // blocking receive for requests for keyspace pools
+        MPI_Recv(&message, 1, MPI_INT, MPI_ANY_SOURCE, KEYSPACE_REQUEST, MPI_COMM_WORLD, &status);
+
+        // construct a KeyspacePool object suitable for serialization and
+        // transmition
+        uint64_t keyspaceNumber;
+//        KeyspacePool *nextPool = m_keyspaceMapping->getNextPool();
+
+        // blocking response to keyspace pool request with serialized
+        // KeyspacePool object
+        MPI_Send(&message, 1, MPI_BYTE, status.MPI_SOURCE, KEYSPACE_RESPONSE, MPI_COMM_WORLD, &status);
+      }
     }
     else
     {
+      while(true)
+      {
+        int message;
+        MPI_Status status;
+
+        // request a new keyspace pool
+        MPI_Send(&message, 1, MPI_INT, ROOT_RANK, KEYSPACE_REQUEST, MPI_COMM_WORLD, &status);
+
+        // recieve the serialized KeyspacePool object
+        MPI_Probe(ROOT_RANK, KEYSPACE_RESPONSE, MPI_COMM_WORLD, &status);
+        uint8_t *poolData = new uint8_t[status._count];  /// \fixme The MPI specification seems to have forgotten to define the count parameter for Status. This line is OpenMPI specific and it really shouldn't be.
+        MPI_Recv(pool, status._count, MPI_BYTE, ROOT_RANK, KEYSPACE_RESPONSE, MPI_COMM_WORLD, &status);
+        KeyspacePool *keyspacePool = KeyspacePoolFactory::createKeyspacePool(poolData, size);
+        delete poolData;  /// \todo We might want to explore the speed benefit
+        /// of a custom memory allocater here and a few other places.
+
+        bool outOfBlocks;
+        do
+        {
+
+        } while(!outOfBlocks);
+      }
     }
   }
 

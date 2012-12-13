@@ -27,6 +27,13 @@ namespace TripRipper
 {
   class LinearKeyspace : public KeyspaceMapping
   {
+    public:
+      LinearKeyspace();
+      ~LinearKeyspace();
+
+      uint64_t totalPools();
+      uint64_t poolsLeft();
+      size_t poolSize();
   }
 
   class LinearKeyspacePool : public KeyspacePool

@@ -25,18 +25,31 @@
 
 namespace TripRipper
 {
-
+  /**
+   * The KeyspaceMapping class is an abstract class that defines a mapping
+   * (hopefully a bijective one) from a set of KeyspacePool objects onto the
+   * tripcode keyspace. Essentially this defines the order in which the keyspace
+   * is searched, and how many keys are in each KeyspacePool object.
+   *
+   * Another benefit provided by this architecture is that KeyspaceMapping
+   * objects can be serialized and stored so that searches can be suspended and
+   * subsequently resumed at a later time.
+   */
   class KeyspaceMapping
   {
     public:
-      const enum Type { Linear };
+      const enum Type { LINEAR = 1 };
 
       KeyspaceMapping();
       virtual ~KeyspaceMapping();
 
-      void serialize(unsigned char *buffer, size_t size) = 0;
+      uint64_t totalPools() = 0;
+      uint64_t poolsLeft() = 0;
+      size_t poolSize() = 0;
+      KeyspacePool *getNextPool() = 0;
 
-      KeyspacePool *getPool();
+      void serialize(unsigned char *buffer, size_t size, bool &done) const = 0;
+      void deserialize(const unsigned char *buffer, size_t size, bool &done) = 0;
   };
 
   /**
@@ -48,14 +61,20 @@ namespace TripRipper
   class KeyspacePool
   {
     public:
-      KeyspacePool();
+      KeyspacePool(uint64_t identifier);
       virtual ~KeyspacePool();
+
+      uint64_t identifier() const { return m_identifier; };
 
       virtual size_t blockSize() = 0;
       virtual size_t blockAlignment() = 0;
-
-      void serialize(unsigned char *buffer, size_t size) = 0;
       unsigned char *getBlock(bool *outOfBlocks) = 0;
+
+      void serialize(unsigned char *buffer, size_t size, bool &done) const = 0;
+      void deserialize(const unsigned char *buffer, size_t size, bool &done) = 0;
+
+    private:
+      uint64_t m_identifier;
   };
 }
 

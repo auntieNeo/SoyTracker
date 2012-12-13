@@ -24,7 +24,7 @@
 #include <mpi.h>
 #include <cstdlib>
 #include <iostream>
-#include "crawlerCoordinator.h"
+#include "tripcodeCrawler.h"
 
 #define USAGE(status) do { \
   fprintf(stderr, "Usage: tripripper [mpi_arguments] [options]\n\n"); \
@@ -96,7 +96,7 @@ int main(int argc, char **argv)
     };
   }
 
-  TripcodeCrawler crawler;
+  TripRipper::TripcodeCrawler crawler(keyspaceMapping, tripcodeAlgorithm, matchingAlgorithm);
 
   crawler.run();
 

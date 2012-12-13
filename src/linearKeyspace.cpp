@@ -32,5 +32,15 @@ namespace TripRipper
   {
   }
 
-  LinearKeyspacePool
+  LinearKeyspace::totalPools()
+  {
+  }
+
+  LinearKeyspacePool::LinearKeyspacePool()
+  {
+  }
+
+  LinearKeyspacePool::~LinearKeyspacePool()
+  {
+  }
 }
