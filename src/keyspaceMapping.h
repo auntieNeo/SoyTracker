@@ -23,8 +23,12 @@
 #ifndef KEYSPACE_MAPPING_H_
 #define KEYSPACE_MAPPING_H_
 
+#include "common.h"
+
 namespace TripRipper
 {
+  class KeyspacePool;
+
   /**
    * The KeyspaceMapping class is an abstract class that defines a mapping
    * (hopefully a bijective one) from a set of KeyspacePool objects onto the
@@ -38,18 +42,26 @@ namespace TripRipper
   class KeyspaceMapping
   {
     public:
-      const enum Type { LINEAR = 1 };
+      enum Type { LINEAR = 1 };
 
       KeyspaceMapping();
       virtual ~KeyspaceMapping();
 
-      uint64_t totalPools() = 0;
-      uint64_t poolsLeft() = 0;
-      size_t poolSize() = 0;
-      KeyspacePool *getNextPool() = 0;
+      void setOutputAlignment(size_t alignment) { m_outputAlignment = alignment; }
+      size_t outputAlignment() const { return m_outputAlignment; }
+      void setOutputStride(size_t stride) { m_outputStride = stride; }
+      size_t outputStride() const { return m_outputStride; }
 
-      void serialize(unsigned char *buffer, size_t size, bool &done) const = 0;
-      void deserialize(const unsigned char *buffer, size_t size, bool &done) = 0;
+      virtual uint64_t totalPools() = 0;
+      virtual uint64_t poolsLeft() = 0;
+      virtual size_t poolSize() = 0;
+      virtual KeyspacePool *getNextPool() = 0;
+
+      virtual void serialize(unsigned char *buffer, size_t size, bool &done) const = 0;
+      virtual void deserialize(const unsigned char *buffer, size_t size, bool &done) = 0;
+
+    private:
+      size_t m_outputAlignment, m_outputStride;
   };
 
   /**
@@ -68,10 +80,10 @@ namespace TripRipper
 
       virtual size_t blockSize() = 0;
       virtual size_t blockAlignment() = 0;
-      unsigned char *getBlock(bool *outOfBlocks) = 0;
+      virtual unsigned char *getBlock(bool *outOfBlocks) = 0;
 
-      void serialize(unsigned char *buffer, size_t size, bool &done) const = 0;
-      void deserialize(const unsigned char *buffer, size_t size, bool &done) = 0;
+      virtual uint8_t *serialize(size_t *size) const = 0;
+      virtual void deserialize(const uint8_t *buffer, size_t size) = 0;
 
     private:
       uint64_t m_identifier;

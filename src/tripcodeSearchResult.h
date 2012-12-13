@@ -20,42 +20,43 @@
  * DEALINGS IN THE SOFTWARE.                                                   *
  ******************************************************************************/
 
-#ifndef STRATEGY_FACTORY_H_
-#define STRATEGY_FACTORY_H_
+#ifndef TRIPCODE_SEARCH_RESULT_H_
+#define TRIPCODE_SEARCH_RESULT_H_
 
-#include <string>
-#include <map>
+#include <vector>
+#include <utility>
 
 namespace TripRipper
 {
-  class KeyspaceMapping;
-  class TripcodeAlgorithm;
-  class MatchingAlgorithm;
-
   /**
-   * The StrategyFactory class is a singleton factory class that constructs the
-   * various strategy classes that TripRipper uses. These strategies can be
-   * changed based on user configuration parameters. The three strategy classes
-   * that StrategyFactory constructs include KeyspaceMapping,
-   * TripcodeAlgorithm, and MatchingAlgorithm.
+   * The TripcodeSearchResult class models results from a search for tripcodes.
+   * That is, TripcodeSearchResult stores tripcodes that passed the matching
+   * algorithm along with their corresponding passwords.
+   *
+   * TripcodeSearchResult objects are serializable for transmission from
+   * TripcodeCrawler workers to the root process.
+   *
+   * TripcodeSearchResult objects can be merged together to form a single list
+   * of results with merge().
+   *
+   * TripcodeSearchResult provides a verify() method for verifying the
+   * tripcodes with a known-working tripcode algorithm.
    */
-  class StrategyFactory
+  class TripcodeSearchResult
   {
-    private:
-      StrategyFactory();
-      ~StrategyFactory();
-
     public:
-      static StrategyFactory *singleton();
+      TripcodeSearchResult();
+      ~TripcodeSearchResult();
 
-      KeyspaceMapping *createKeyspaceMapping(const std::string &type);
-      TripcodeAlgorithm *createTripcodeAlgorithm(const std::string &type);
-      MatchingAlgorithm *createMatchingAlgorithm(const std::string &type);
+      void serialize(unsigned char *buffer, size_t size, bool &done);
+      void deserialize(const unsigned char *buffer, size_t size, bool &done);
+
+      void merge(const TripcodeSearchResult &source);
+
+      bool verify();
 
     private:
-      std::map<std::string, KeyspaceMapping *(*)()> m_keyspaceMappingCreators;
-      std::map<std::string, TripcodeAlgorithm *(*)()> m_tripcodeAlgorithmCreators;
-      std::map<std::string, MatchingAlgorithm *(*)()> m_matchingAlgorithmCreators;
+      std::vector<std::pair<std::string, std::string>> m_tripcodes;
   };
 }
 

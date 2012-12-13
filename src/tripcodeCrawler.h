@@ -23,6 +23,8 @@
 #ifndef TRIPCODE_CRAWLER_H_
 #define TRIPCODE_CRAWLER_H_
 
+#include <string>
+
 namespace TripRipper
 {
   class KeyspaceMapping;
@@ -43,7 +45,6 @@ namespace TripRipper
       KeyspaceMapping *m_keyspaceMapping;
       TripcodeAlgorithm *m_tripcodeAlgorithm;
       MatchingAlgorithm *m_matchingAlgorithm;
-      KeyspacePool *m_currentPool;
   };
 }
 

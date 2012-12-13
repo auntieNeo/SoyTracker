@@ -20,43 +20,15 @@
  * DEALINGS IN THE SOFTWARE.                                                   *
  ******************************************************************************/
 
-#ifndef STRATEGY_FACTORY_H_
-#define STRATEGY_FACTORY_H_
-
-#include <string>
-#include <map>
+#include "matchingAlgorithm.h"
 
 namespace TripRipper
 {
-  class KeyspaceMapping;
-  class TripcodeAlgorithm;
-  class MatchingAlgorithm;
-
-  /**
-   * The StrategyFactory class is a singleton factory class that constructs the
-   * various strategy classes that TripRipper uses. These strategies can be
-   * changed based on user configuration parameters. The three strategy classes
-   * that StrategyFactory constructs include KeyspaceMapping,
-   * TripcodeAlgorithm, and MatchingAlgorithm.
-   */
-  class StrategyFactory
+  MatchingAlgorithm::MatchingAlgorithm()
   {
-    private:
-      StrategyFactory();
-      ~StrategyFactory();
+  }
 
-    public:
-      static StrategyFactory *singleton();
-
-      KeyspaceMapping *createKeyspaceMapping(const std::string &type);
-      TripcodeAlgorithm *createTripcodeAlgorithm(const std::string &type);
-      MatchingAlgorithm *createMatchingAlgorithm(const std::string &type);
-
-    private:
-      std::map<std::string, KeyspaceMapping *(*)()> m_keyspaceMappingCreators;
-      std::map<std::string, TripcodeAlgorithm *(*)()> m_tripcodeAlgorithmCreators;
-      std::map<std::string, MatchingAlgorithm *(*)()> m_matchingAlgorithmCreators;
-  };
+  MatchingAlgorithm::~MatchingAlgorithm()
+  {
+  }
 }
-
-#endif

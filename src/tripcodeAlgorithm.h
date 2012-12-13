@@ -23,6 +23,8 @@
 #ifndef TRIPCODE_ALGORITHM_H_
 #define TRIPCODE_ALGORITHM_H_
 
+#include "common.h"
+
 /**
  * \page tripcode_algorithm Tripcode Algorithm Description
  *
@@ -70,6 +72,17 @@ namespace TripRipper
     public:
       TripcodeAlgorithm();
       virtual ~TripcodeAlgorithm();
+
+      void setOutputAlignment(size_t alignment) { m_outputAlignment = alignment; }
+      size_t outputAlignment() const { return m_outputAlignment; }
+      void setOutputStride(size_t stride) { m_outputStride = stride; }
+      size_t outputStride() const { return m_outputStride; }
+
+      virtual size_t inputAlignment() const = 0;
+      virtual size_t inputStride() const = 0;
+
+    private:
+      size_t m_outputAlignment, m_outputStride;
   };
 }
 

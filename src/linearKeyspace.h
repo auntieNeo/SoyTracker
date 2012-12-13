@@ -23,6 +23,8 @@
 #ifndef LINEAR_KEYSPACE_H_
 #define LINEAR_KEYSPACE_H_
 
+#include "keyspaceMapping.h"
+
 namespace TripRipper
 {
   class LinearKeyspace : public KeyspaceMapping
@@ -34,11 +36,18 @@ namespace TripRipper
       uint64_t totalPools();
       uint64_t poolsLeft();
       size_t poolSize();
-  }
+      KeyspacePool *getNextPool();
+
+      void serialize(unsigned char *buffer, size_t size, bool &done) const;
+      void deserialize(const unsigned char *buffer, size_t size, bool &done);
+  };
 
   class LinearKeyspacePool : public KeyspacePool
   {
-  }
+    public:
+      LinearKeyspacePool(uint64_t identifier);
+      ~LinearKeyspacePool();
+  };
 }
 
 #endif

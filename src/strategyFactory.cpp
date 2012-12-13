@@ -21,11 +21,37 @@
  ******************************************************************************/
 
 #include "strategyFactory.h"
+#include "linearKeyspace.h"
+#include "openSSLTripcode.h"
+#include "strcmpMatching.h"
 
 namespace TripRipper
 {
+  KeyspaceMapping *createLinearKeyspace()
+  {
+    return new LinearKeyspace;
+  }
+
+  TripcodeAlgorithm *createOpenSSLTripcode()
+  {
+    return new openSSLTripcode;
+  }
+
+  MatchingAlgorithm *createStrcmpMatching()
+  {
+    return new strcmpMatching;
+  }
+
   StratgyFactory::StrategyFactory()
   {
+    // populate m_keyspaceMappingCreators
+    m_keyspaceMappingCreators.push_back(createLinearKeyspace);
+
+    // populate m_tripcodeAlgorithmCreators
+    m_tripcodeAlgorithmCreators.push_back(createOpenSSLTripcode);
+
+    // populate m_matchingAlgorithmCreators
+    m_matchingAlgorithmCreators.push_back(createStrcmpMatching);
   }
 
   StratgyFactory::~StrategyFactory()
@@ -36,5 +62,26 @@ namespace TripRipper
   {
     static StrategyFactory instance;
     return &instance;
+  }
+
+  KeyspaceMapping *StrategyFactory::createKeyspaceMapping(const std::string &type)
+  {
+    std::map<std::string, KeyspaceMapping *(*)()>::iterator i = m_keyspaceMappingCreators.find(type);
+    assert(i != m_keyspaceMappingCreators.end()); // FIXME: Handle this error properly. This is part of the external interface.
+    return (*i)();
+  }
+
+  TripcodeAlgorithm *StrategyFactory::createTripcodeAlgorithm(const std::string &type)
+  {
+    std::map<std::string, TripcodeAlgorithm *(*)()>::iterator i = m_tripcodeAlgorithmCreators.find(type);
+    assert(i != m_tripcodeAlgorithmCreators.end()); // FIXME: Handle this error properly. This is part of the external interface.
+    return (*i)();
+  }
+
+  MatchingAlgorithm *StrategyFactory::createMatchingAlgorithm(const std::string &type)
+  {
+    std::map<std::string, MatchingAlgorithm *(*)()>::iterator i = m_matchingAlgorithmCreators.find(type);
+    assert(i != m_matchingAlgorithmCreators.end()); // FIXME: Handle this error properly. This is part of the external interface.
+    return (*i)();
   }
 }

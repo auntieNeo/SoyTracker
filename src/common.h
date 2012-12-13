@@ -23,6 +23,11 @@
 #ifndef COMMON_H_
 #define COMMON_H_
 
+#include <cstddef>
+#include <cstdlib>
+#include <stdint.h>
+#include <cassert>
+
 namespace TripRipper
 {
   enum MessageTag {
@@ -33,8 +38,6 @@ namespace TripRipper
   };
 
   const int ROOT_RANK = 0;
-
-  typedef pool_id uint64_t;
 }
 
 #endif

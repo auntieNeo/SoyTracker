@@ -23,6 +23,8 @@
 #ifndef KEYSPACE_POOL_FACTORY_H_
 #define KEYSPACE_POOL_FACTORY_H_
 
+#include "common.h"
+
 namespace TripRipper
 {
   class KeyspacePool;
@@ -47,7 +49,7 @@ namespace TripRipper
       static KeyspacePoolFactory *singleton();
 
       KeyspacePool *createKeyspacePool(const uint8_t *data, size_t size);
-  }
+  };
 }
 
 #endif

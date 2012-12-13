@@ -22,6 +22,8 @@
 
 #include "keyspacePoolFactory.h"
 #include "keyspaceMapping.h"
+#include "linearKeyspace.h"
+#include "common.h"
 
 #include <arpa/inet.h>
 
@@ -35,19 +37,19 @@ namespace TripRipper
   {
   }
 
-  KeyspacePool *KeyspacePoolFactory::singleton()
+  KeyspacePoolFactory *KeyspacePoolFactory::singleton()
   {
-    static KeyspacePool instance;
+    static KeyspacePoolFactory instance;
     return &instance;
   }
 
-  KeyspacePool *createKeyspacePool(const unsigned char *data, size_t size)
+  KeyspacePool *KeyspacePoolFactory::createKeyspacePool(const uint8_t *data, size_t size)
   {
-    uint32_t type = ntohl(static_cast<uint32_t*>(data));
+    uint32_t type = ntohl(*reinterpret_cast<const uint32_t*>(data));
     size_t dataIndex = sizeof(uint32_t);
     switch(static_cast<KeyspaceMapping::Type>(type))
     {
-      case Linear:
+      case KeyspaceMapping::LINEAR:
         {
           LinearKeyspace();
         }

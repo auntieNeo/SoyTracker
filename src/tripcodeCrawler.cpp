@@ -22,6 +22,13 @@
 
 #include "tripcodeCrawler.h"
 #include "common.h"
+#include "strategyFactory.h"
+#include "keyspacePoolFactory.h"
+#include "keyspaceMapping.h"
+#include "tripcodeAlgorithm.h"
+#include "matchingAlgorithm.h"
+
+#include <mpi.h>
 
 namespace TripRipper
 {
@@ -33,17 +40,22 @@ namespace TripRipper
   TripcodeCrawler::TripcodeCrawler(const std::string &keyspaceStrategy, const std::string &tripcodeStrategy, const std::string &matchingStrategy) :
     m_keyspaceMapping(NULL),
     m_tripcodeAlgorithm(NULL),
-    m_matchingAlgorithm(NULL),
-    m_currentPool(NULL)
+    m_matchingAlgorithm(NULL)
  {
+    m_matchingAlgorithm = StrategyFactory::singleton()->createMatchingAlgorithm(matchingStrategy);
+
+    m_tripcodeAlgorithm = StrategyFactory::singleton()->createTripcodeAlgorithm(tripcodeStrategy);
+    m_tripcodeAlgorithm->setOutputAlignment(m_matchingAlgorithm->inputAlignment());
+    m_tripcodeAlgorithm->setOutputStride(m_matchingAlgorithm->inputStride());
+
     int worldRank;
     MPI_Comm_rank(MPI_COMM_WORLD, &worldRank);
     if(worldRank == ROOT_RANK)
     {
       m_keyspaceMapping = StrategyFactory::singleton()->createKeyspaceMapping(keyspaceStrategy);
+      m_keyspaceMapping->setOutputAlignment(m_tripcodeAlgorithm->inputAlignment());
+      m_keyspaceMapping->setOutputStride(m_tripcodeAlgorithm->inputStride());
     }
-    m_tripcodeAlgorithm = StrategyFactory::singleton()->createTripcodeAlgorithm(tripcodeStrategy);
-    m_matchingAlgorithm = StrategyFactory::singleton()->createMatchingAlgorithm(matchingStrategy);
   }
 
   TripcodeCrawler::~TripcodeCrawler()
@@ -51,7 +63,6 @@ namespace TripRipper
     delete m_matchingAlgorithm;
     delete m_tripcodeAlgorithm;
     delete m_keyspaceMapping;
-    delete m_currentPool;
   }
 
   /**
@@ -86,37 +97,41 @@ namespace TripRipper
 
       while(true)
       {
-        int message;
         MPI_Status status;
 
         // blocking receive for requests for keyspace pools
-        MPI_Recv(&message, 1, MPI_INT, MPI_ANY_SOURCE, KEYSPACE_REQUEST, MPI_COMM_WORLD, &status);
+        MPI_Recv(NULL, 0, MPI_INT, MPI_ANY_SOURCE, KEYSPACE_REQUEST, MPI_COMM_WORLD, &status);
 
+        /// \todo Need to document the ownership of a lot of these buffers.
         // construct a KeyspacePool object suitable for serialization and
-        // transmition
-        uint64_t keyspaceNumber;
-//        KeyspacePool *nextPool = m_keyspaceMapping->getNextPool();
-
+        // transmission
+        assert(m_keyspaceMapping != NULL);
+        KeyspacePool *keyspacePool = m_keyspaceMapping->getNextPool();
+        size_t poolDataSize;
+        uint8_t *poolData = keyspacePool->serialize(&poolDataSize);
         // blocking response to keyspace pool request with serialized
         // KeyspacePool object
-        MPI_Send(&message, 1, MPI_BYTE, status.MPI_SOURCE, KEYSPACE_RESPONSE, MPI_COMM_WORLD, &status);
+        MPI_Send(poolData, static_cast<int>(poolDataSize), MPI_BYTE, status.MPI_SOURCE, KEYSPACE_RESPONSE, MPI_COMM_WORLD);
+        delete keyspacePool;
+        delete poolData;
       }
     }
     else
     {
       while(true)
       {
-        int message;
         MPI_Status status;
 
         // request a new keyspace pool
-        MPI_Send(&message, 1, MPI_INT, ROOT_RANK, KEYSPACE_REQUEST, MPI_COMM_WORLD, &status);
+        MPI_Send(NULL, 0, MPI_INT, ROOT_RANK, KEYSPACE_REQUEST, MPI_COMM_WORLD);
 
         // recieve the serialized KeyspacePool object
         MPI_Probe(ROOT_RANK, KEYSPACE_RESPONSE, MPI_COMM_WORLD, &status);
-        uint8_t *poolData = new uint8_t[status._count];  /// \fixme The MPI specification seems to have forgotten to define the count parameter for Status. This line is OpenMPI specific and it really shouldn't be.
-        MPI_Recv(pool, status._count, MPI_BYTE, ROOT_RANK, KEYSPACE_RESPONSE, MPI_COMM_WORLD, &status);
-        KeyspacePool *keyspacePool = KeyspacePoolFactory::createKeyspacePool(poolData, size);
+        size_t poolDataSize;
+        MPI_Get_count(&status, MPI_BYTE, reinterpret_cast<int*>(poolDataSize));
+        uint8_t *poolData = new uint8_t[poolDataSize];
+        MPI_Recv(poolData, static_cast<int>(poolDataSize), MPI_BYTE, ROOT_RANK, KEYSPACE_RESPONSE, MPI_COMM_WORLD, &status);
+        KeyspacePool *keyspacePool = KeyspacePoolFactory::singleton()->createKeyspacePool(poolData, poolDataSize);
         delete poolData;  /// \todo We might want to explore the speed benefit
         /// of a custom memory allocater here and a few other places.
 
@@ -125,6 +140,12 @@ namespace TripRipper
         {
 
         } while(!outOfBlocks);
+
+        // TODO: send TripcodeSearchResult to ROOT_RANK
+
+        delete keyspacePool;
+
+        // TODO: check for termination signal
       }
     }
   }

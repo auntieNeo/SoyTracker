@@ -23,6 +23,8 @@
 #ifndef MATCHING_ALGORITHM_H_
 #define MATCHING_ALGORITHM_H_
 
+#include "common.h"
+
 namespace TripRipper
 {
   class MatchingAlgorithm
@@ -30,6 +32,9 @@ namespace TripRipper
     public:
       MatchingAlgorithm();
       virtual ~MatchingAlgorithm();
+
+      virtual size_t inputAlignment() const = 0;
+      virtual size_t inputStride() const = 0;
   };
 }
 

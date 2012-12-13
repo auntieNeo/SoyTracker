@@ -32,11 +32,38 @@ namespace TripRipper
   {
   }
 
-  LinearKeyspace::totalPools()
+  uint64_t LinearKeyspace::totalPools()
   {
+    // TODO
   }
 
-  LinearKeyspacePool::LinearKeyspacePool()
+  uint64_t LinearKeyspace::poolsLeft()
+  {
+    // TODO
+  }
+
+  size_t LinearKeyspace::poolSize()
+  {
+    // TODO
+  }
+
+  KeyspacePool *LinearKeyspace::getNextPool()
+  {
+    // TODO
+  }
+
+  void LinearKeyspace::serialize(unsigned char *buffer, size_t size, bool &done) const
+  {
+    // TODO
+  }
+
+  void LinearKeyspace::deserialize(const unsigned char *buffer, size_t size, bool &done)
+  {
+    // TODO
+  }
+
+  LinearKeyspacePool::LinearKeyspacePool(uint64_t identifier) :
+    KeyspacePool(identifier)
   {
   }
 
