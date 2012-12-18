@@ -85,6 +85,8 @@
 
 namespace TripRipper
 {
+  class KeyBlock;
+
   /**
    * The abstract TripcodeAlgorithm class describes 
    */
@@ -123,6 +125,8 @@ namespace TripRipper
       virtual size_t inputAlignment() const = 0;
       virtual size_t inputStride() const = 0;
       virtual bool inputPackHighBit() const = 0;
+
+      virtual void computeTripcodes(const KeyBlock *keys, TripcodeContainer *results) = 0;
 
     private:
       size_t m_outputAlignment, m_outputStride;

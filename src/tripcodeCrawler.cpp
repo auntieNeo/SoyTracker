@@ -135,11 +135,14 @@ namespace TripRipper
         delete poolData;  /// \todo We might want to explore the speed benefit
         /// of a custom memory allocater here and a few other places.
 
-        bool outOfBlocks;
-        do
+        TripcodeContainer tripcodes, matches;
+        KeyspaceBlock *currentBlock;
+        while((currentBlock = keyspacePool->getNextBlock()) != NULL)
         {
-
-        } while(!outOfBlocks);
+          m_tripcodeAlgorithm->computeTripcodes(currentBlock, &tripcodes);
+          m_matchingAlgorithm->matchTripcodes(&tripcodes);
+          matches.merge(&tripcodes);
+        }
 
         // TODO: send TripcodeSearchResult to ROOT_RANK
 
