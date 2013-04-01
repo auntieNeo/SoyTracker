@@ -39,22 +39,22 @@ namespace TripRipper
 
   MatchingAlgorithm *createStrcmpMatching()
   {
-    return new strcmpMatching;
+    return new StrcmpMatching;
   }
 
-  StratgyFactory::StrategyFactory()
+  StrategyFactory::StrategyFactory()
   {
     // populate m_keyspaceMappingCreators
-    m_keyspaceMappingCreators.push_back(createLinearKeyspace);
+    m_keyspaceMappingCreators.insert(std::pair<std::string, KeyspaceMapping*(*)()>("linear", createLinearKeyspace));
 
     // populate m_tripcodeAlgorithmCreators
-    m_tripcodeAlgorithmCreators.push_back(createOpenSSLTripcode);
+    m_tripcodeAlgorithmCreators.insert(std::pair<std::string, TripcodeAlgorithm*(*)()>("openssl", createOpenSSLTripcode));
 
     // populate m_matchingAlgorithmCreators
-    m_matchingAlgorithmCreators.push_back(createStrcmpMatching);
+    m_matchingAlgorithmCreators.insert(std::pair<std::string, MatchingAlgorithm*(*)()>("strcmp", createStrcmpMatching));
   }
 
-  StratgyFactory::~StrategyFactory()
+  StrategyFactory::~StrategyFactory()
   {
   }
 
@@ -68,20 +68,20 @@ namespace TripRipper
   {
     std::map<std::string, KeyspaceMapping *(*)()>::iterator i = m_keyspaceMappingCreators.find(type);
     assert(i != m_keyspaceMappingCreators.end()); // FIXME: Handle this error properly. This is part of the external interface.
-    return (*i)();
+    return ((*i).second)();
   }
 
   TripcodeAlgorithm *StrategyFactory::createTripcodeAlgorithm(const std::string &type)
   {
     std::map<std::string, TripcodeAlgorithm *(*)()>::iterator i = m_tripcodeAlgorithmCreators.find(type);
     assert(i != m_tripcodeAlgorithmCreators.end()); // FIXME: Handle this error properly. This is part of the external interface.
-    return (*i)();
+    return ((*i).second)();
   }
 
   MatchingAlgorithm *StrategyFactory::createMatchingAlgorithm(const std::string &type)
   {
     std::map<std::string, MatchingAlgorithm *(*)()>::iterator i = m_matchingAlgorithmCreators.find(type);
     assert(i != m_matchingAlgorithmCreators.end()); // FIXME: Handle this error properly. This is part of the external interface.
-    return (*i)();
+    return ((*i).second)();
   }
 }

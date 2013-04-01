@@ -27,6 +27,7 @@
 #include "keyspaceMapping.h"
 #include "tripcodeAlgorithm.h"
 #include "matchingAlgorithm.h"
+#include "tripcodeContainer.h"
 
 #include <mpi.h>
 
@@ -37,12 +38,13 @@ namespace TripRipper
    * that identify the strategies to be used when searching for tripcodes. These
    * are the same strings that are used for the command line arguments.
    */
-  TripcodeCrawler::TripcodeCrawler(const std::string &keyspaceStrategy, const std::string &tripcodeStrategy, const std::string &matchingStrategy) :
+  TripcodeCrawler::TripcodeCrawler(const std::string &keyspaceStrategy, const std::string &tripcodeStrategy, const std::string &matchingStrategy, const std::string &matchString) :
     m_keyspaceMapping(NULL),
     m_tripcodeAlgorithm(NULL),
     m_matchingAlgorithm(NULL)
  {
     m_matchingAlgorithm = StrategyFactory::singleton()->createMatchingAlgorithm(matchingStrategy);
+    m_matchingAlgorithm->setMatchString(matchString);
 
     m_tripcodeAlgorithm = StrategyFactory::singleton()->createTripcodeAlgorithm(tripcodeStrategy);
     m_tripcodeAlgorithm->setOutputAlignment(m_matchingAlgorithm->inputAlignment());
@@ -136,7 +138,7 @@ namespace TripRipper
         /// of a custom memory allocater here and a few other places.
 
         TripcodeContainer tripcodes, matches;
-        KeyspaceBlock *currentBlock;
+        KeyBlock *currentBlock;
         while((currentBlock = keyspacePool->getNextBlock()) != NULL)
         {
           m_tripcodeAlgorithm->computeTripcodes(currentBlock, &tripcodes);

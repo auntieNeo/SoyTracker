@@ -27,6 +27,8 @@
 #include <cstdlib>
 #include <stdint.h>
 #include <cassert>
+#include <string>
+#include <vector>
 
 namespace TripRipper
 {

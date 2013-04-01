@@ -35,6 +35,9 @@ namespace TripRipper
 
       size_t inputAlignment() const { return 1; }
       size_t inputStride() const { return 1; }
+      bool inputPackHighBit() const { return false; }
+
+      void computeTripcodes(const KeyBlock *keys, TripcodeContainer *results);
   };
 }
 

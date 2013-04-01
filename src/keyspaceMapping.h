@@ -28,6 +28,7 @@
 namespace TripRipper
 {
   class KeyspacePool;
+  class KeyBlock;
 
   /**
    * The KeyspaceMapping class is an abstract class that defines a mapping
@@ -80,7 +81,7 @@ namespace TripRipper
 
       virtual size_t blockSize() = 0;
       virtual size_t blockAlignment() = 0;
-      virtual unsigned char *getNextBlock() = 0;
+      virtual KeyBlock *getNextBlock() = 0;
 
       virtual uint8_t *serialize(size_t *size) const = 0;
       virtual void deserialize(const uint8_t *buffer, size_t size) = 0;
@@ -89,6 +90,10 @@ namespace TripRipper
       uint64_t m_identifier;
   };
 
+  /**
+   * KeyBlock is a container for inputs to the tripcode algorithm packed in
+   * such a way to allow for efficient processing.
+   */
   class KeyBlock
   {
     public:

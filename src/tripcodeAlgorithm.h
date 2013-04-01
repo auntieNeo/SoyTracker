@@ -86,6 +86,7 @@
 namespace TripRipper
 {
   class KeyBlock;
+  class TripcodeContainer;
 
   /**
    * The abstract TripcodeAlgorithm class describes 

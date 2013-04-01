@@ -27,6 +27,19 @@
 
 namespace TripRipper
 {
+  class TripcodeContainer;
+
+  /**
+   * MatchingAlgorithm is an abstract class that allows for different algorithms
+   * to be used when determining which tripcodes pass certain criteria. Because
+   * millions of tripcodes are matched per second, it is fairly important for
+   * this algorithm to be efficient, although larger performance gains are
+   * likely to be had by improving the tripcode computation algorithm (see
+   * the TripcodeAlgorithm class).
+   *
+   * Typical implementations of the MatchingAlgorithm class are simple string
+   * matching algorithms and regular expression algorithms.
+   */
   class MatchingAlgorithm
   {
     public:
@@ -35,6 +48,9 @@ namespace TripRipper
 
       virtual size_t inputAlignment() const = 0;
       virtual size_t inputStride() const = 0;
+
+      virtual void setMatchString(const std::string &matchString) = 0;
+      virtual void matchTripcodes(TripcodeContainer *tripcodes) = 0;
   };
 }
 

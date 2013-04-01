@@ -35,7 +35,7 @@ namespace TripRipper
   class TripcodeCrawler
   {
     public:
-      TripcodeCrawler(const std::string &keyspaceStrategy, const std::string &tripcodeStrategy, const std::string &matchingStrategy);
+      TripcodeCrawler(const std::string &keyspaceStrategy, const std::string &tripcodeStrategy, const std::string &matchingStrategy, const std::string &matchString);
       ~TripcodeCrawler();
 
       void run();

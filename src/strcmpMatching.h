@@ -23,6 +23,7 @@
 #ifndef STRCMP_MATCHING_H_
 #define STRCMP_MATCHING_H_
 
+#include "common.h"
 #include "matchingAlgorithm.h"
 
 namespace TripRipper
@@ -32,6 +33,15 @@ namespace TripRipper
     public:
       StrcmpMatching();
       ~StrcmpMatching();
+
+      size_t inputAlignment() const { return 1; }
+      size_t inputStride() const { return 0; }
+
+      void setMatchString(const std::string &matchString) { m_matchString = matchString; }
+      void matchTripcodes(TripcodeContainer *tripcodes);
+
+    private:
+      std::string m_matchString;
   };
 }
 
